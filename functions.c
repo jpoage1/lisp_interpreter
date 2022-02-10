@@ -377,6 +377,22 @@ lval* lval_read(mpc_ast_t* t) {
   return x;
 }
 
+lval* lval_lambda(lval* formals, lval* body) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_FUN;
+
+  /* Set Builtin to Null */
+  v->builtin = NULL;
+
+  /* Build new environment */
+  v->env = lenv_new();
+
+  /* Set Formals and Body */
+  v->formals = formals;
+  v->body = body;
+  return v;
+}
+
 int main(int argc, char** argv) {
 
   mpc_parser_t* Number = mpc_new("number");
