@@ -30,7 +30,55 @@ long eval_op(long x, char* op, long y) {
   if ( strcmp(op, "^") == 0 || strcmp(op, "pow") == 0) { return pow(x, y); }
   return 0;
 }
+long count_leaves(mpc_ast_t* t) {
+  long l = 0;
+  if (strstr(t->tag, "number")) return ++l;
+  l++;
+  int i = 3;
+  while (strstr(t->children[i]->tag, "expr")) {
+    l+= count_leaves(t->children[i]);
+    i++;
+  }
+  return l;
+}
+#include <limits.h>
+long min(mpc_ast_t* t) {
+  if (strstr(t->tag, "number")) return strtol(t->contents, NULL, 10);
+  // Arguments begin at 2
+  int i = 2;
+  long a = LONG_MAX;
+  long b;
+  while (strstr(t->children[i]->tag, "number")) {
+    b = strtol(t->children[i]->contents, NULL, 10);
+    a = a < b ? a : b;
+    i++;
+  }
+  return a;
+}
+long max(mpc_ast_t* t) {
+  if (strstr(t->tag, "number")) return strtol(t->contents, NULL, 10);
+  // Arguments begin at 2
+  int i = 2;
+  long a = LONG_MIN;
+  long b;
+  while (strstr(t->children[i]->tag, "number")) {
+    b = strtol(t->children[i]->contents, NULL, 10);
+    a = a > b ? b : a;
+    i++;
+  }
+  return a;
+}
 
+long count_branches(mpc_ast_t* t) {
+  if (strstr(t->tag, "number")) return 0;
+  long b = 1;
+  int i = 3;
+  while (strstr(t->children[i]->tag, "expr")) {
+    b += strstr(t->children[i]->tag, "number") == 0 ? count_branches(t->children[i]) : 0;
+    i++;
+  }
+  return b;
+}
 long eval(mpc_ast_t* t) {
   /* If tagged as number return it directly */
   if (strstr( t->tag, "number")) {
@@ -39,6 +87,13 @@ long eval(mpc_ast_t* t) {
 
   /* The operator is always second child */
   char* op = t->children[1]->contents;
+
+  if (strcmp(op, "min") == 0) {
+    return min(t);
+  }
+  if (strcmp(op, "max") == 0) {
+    return max(t);
+  }
   
   /* We store the third child in 'x' */
   long x = eval(t->children[2]);
@@ -65,7 +120,7 @@ int main(int argc, char** argv) {
       number    : /-?[0-9]+\\.?[0-9]*/ ;                            \
       operator  : '+' | '-' | '*' | '/' | '%' | '^'                 \
                 | \"add\" | \"sub\" | \"mul\" | \"div\"             \
-                | \"rem\" | \"pow\" ;                               \
+                | \"rem\" | \"pow\" | \"min\" | \"max\" ;           \
       expr     : <number> | '(' <operator> <expr>+ ')' ;            \
       lispy    : /^/ <operator> <expr>+ /$/ ;                       \
     ",
@@ -81,7 +136,10 @@ int main(int argc, char** argv) {
 
     mpc_result_t r;
     if (mpc_parse("<stdin>", input, Lispy, &r)) {
-
+      long l = count_leaves(r.output);
+      printf("Leaves: %li\n", l);
+      long b = count_branches(r.output);
+      printf("Branches: %li\n", b);
       long result = eval(r.output);
       printf("%li\n", result);
       mpc_ast_delete(r.output);
