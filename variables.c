@@ -36,7 +36,7 @@ typedef lval*(*lbuiltin)(lenv*, lval*);
 struct lval {
   int type;
 
-  long num;
+  double num;
   char* err;
   char* sym;
   lbuiltin fun;
@@ -225,7 +225,7 @@ void lval_expr_print(lval* v, char open, char close) {
 void lval_print(lval* v) {
   switch (v->type) {
     case LVAL_FUN:    printf("<function>"); break;
-    case LVAL_NUM:    printf("%li", v->num); break; 
+    case LVAL_NUM:    printf("%lf", v->num); break; 
     case LVAL_ERR:    printf("Error: %s", v->err); break;
     case LVAL_SYM:    printf("%s", v->sym); break;
     case LVAL_SEXPR:  lval_expr_print(v, '(', ')'); break;
@@ -439,10 +439,11 @@ lval* builtin_op(lenv* e, lval* a, char* op) {
   while (a->count > 0) {
     lval* y = lval_pop(a, 0);
 
-    if (strcmp(op, "+") == 0) { x->num += y->num; }
-    if (strcmp(op, "-") == 0) { x->num -= y->num; }
-    if (strcmp(op, "*") == 0) { x->num *= y->num; }
-    if (strcmp(op, "/") == 0) {
+    if (strcmp(op, "+") == 0 || strcmp(op, "add") == 0) { x->num += y->num; }
+    if (strcmp(op, "-") == 0 || strcmp(op, "sub") == 0) { x->num -= y->num; }
+    if (strcmp(op, "*") == 0 || strcmp(op, "mul") == 0) { x->num *= y->num; }
+    if (strcmp(op, "^") == 0 || strcmp(op, "pow") == 0) { x->num *= y->num; }  
+    if (strcmp(op, "/") == 0 || strcmp(op, "div") == 0) {
       if (y->num == 0) {
         lval_del(x); lval_del(y);
         x = lval_err("Division By Zero.");
@@ -450,13 +451,13 @@ lval* builtin_op(lenv* e, lval* a, char* op) {
       }
       x->num /= y->num;
     }
-    if (strcmp(op, "%") == 0) {
+    if (strcmp(op, "%") == 0 || strcmp(op, "rem") == 0) {
       if (y->num == 0) {
         lval_del(x); lval_del(y);
         x = lval_err("Division By Zero.");
         break;
       }
-      x->num %= y->num;
+      x->num = fmod(x->num, y->num);
     }
 
     lval_del(y);
@@ -484,6 +485,10 @@ lval* builtin_div(lenv* e, lval* a) {
 
 lval* builtin_rem(lenv* e, lval* a) {
   return builtin_op(e, a, "%");
+}
+
+lval* builtin_pow(lenv* e, lval* a) {
+  return builtin_op(e, a, "^");
 }
 
 lval* builtin_def(lenv* e, lval* a) {
@@ -538,10 +543,17 @@ void lenv_add_builtins(lenv* e) {
 
   /* Mathematical Functions */
   lenv_add_builtin(e, "+", builtin_add);
+  lenv_add_builtin(e, "add", builtin_add);
   lenv_add_builtin(e, "-", builtin_sub);
+  lenv_add_builtin(e, "sub", builtin_sub);
   lenv_add_builtin(e, "*", builtin_mul);
+  lenv_add_builtin(e, "mul", builtin_mul);
   lenv_add_builtin(e, "/", builtin_div);
+  lenv_add_builtin(e, "div", builtin_div);
   lenv_add_builtin(e, "%", builtin_rem);
+  lenv_add_builtin(e, "rem", builtin_rem);
+  lenv_add_builtin(e, "^", builtin_pow);
+  lenv_add_builtin(e, "pow", builtin_pow);
 
 }
 
@@ -627,6 +639,7 @@ lval* lval_read(mpc_ast_t* t) {
   
   return x;
 }
+#define version "0.0.0.0.7"
 int main(int argc, char** argv) {
 
   mpc_parser_t* Number  = mpc_new("number");
@@ -650,7 +663,7 @@ int main(int argc, char** argv) {
   lenv* e = lenv_new();
   lenv_add_builtins(e);
 
-  puts("Lispy Version 0.0.0.0.7");
+  puts("Lispy Version " version);
   puts("Press Ctrl+c to Exit\n");
 
   while (1) {
