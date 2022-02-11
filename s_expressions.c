@@ -25,7 +25,7 @@ enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR };
 
 typedef struct lval {
   int type;
-  long num;
+  double num;
   /* Error and Symbol types have some string data */
   char* err;
   char* sym;
@@ -187,6 +187,14 @@ lval* builtin_op(lval* a, char* op) {
         break;
       }
       x->num /= y->num;
+    }
+    if (strcmp(op, "%") == 0) {
+      if (y->num == 0) {
+        lval_del(x); lval_del(y);
+        x = lval_err("Division By Zero.");
+        break;
+      }
+      x->num = fmod(x->num, y->num);
     }
 
     /* Delete element now finished with */
