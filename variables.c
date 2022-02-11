@@ -221,12 +221,11 @@ void lval_expr_print(lval* v, char open, char close) {
   }
   putchar(close);
 }
-
 /* Print an "lval" */
 void lval_print(lval* v) {
   switch (v->type) {
     case LVAL_FUN:    printf("<function>"); break;
-    case LVAL_NUM:    printf("%li", v->num); break;
+    case LVAL_NUM:    printf("%li", v->num); break; 
     case LVAL_ERR:    printf("Error: %s", v->err); break;
     case LVAL_SYM:    printf("%s", v->sym); break;
     case LVAL_SEXPR:  lval_expr_print(v, '(', ')'); break;
@@ -341,6 +340,11 @@ void lenv_put(lenv* e, lval* k, lval* v) {
 
 lval* lval_eval(lenv* e, lval* v);
 
+lval* builtin_exit(lenv* e, lval* a) {
+  printf("Exit was called!\n");
+  exit(0);
+}
+
 lval* builtin_list(lenv* e, lval* a) {
   a->type = LVAL_QEXPR;
   return a;
@@ -414,7 +418,7 @@ lval* builtin_join(lenv* e, lval* a) {
 }
 
 lval* builtin_op(lenv* e, lval* a, char* op) {
-
+  
   /* Ensure all arguments are numbers */
   for (int i = 0; i < a->count; i++) {
     if (a->cell[i]->type != LVAL_NUM) {
@@ -507,6 +511,9 @@ void lenv_add_builtin(lenv* e, char* name, lbuiltin func) {
 }
 
 void lenv_add_builtins(lenv* e) {
+  /* Create a way to exit the program */
+  lenv_add_builtin(e, "exit", builtin_exit);
+
   /* Variable Functions */
   lenv_add_builtin(e, "def", builtin_def);
 
@@ -532,6 +539,7 @@ lval* lval_eval_sexpr(lenv* e, lval* v) {
   for (int i = 0; i < v->count; i++) {
     v->cell[i] = lval_eval(e, v->cell[i]);
   }
+  
 
   /* Error checking */
   for (int i = 0; i < v->count; i++) {
@@ -540,10 +548,9 @@ lval* lval_eval_sexpr(lenv* e, lval* v) {
 
   /* Empty Expression */
   if (v->count == 0) { return v; }
-  if (v->count == 1) { return lval_take(v, 0); }
-
   /* Single Expression */
-  if (v->count == 1) { return lval_take(v, 0); }
+  if (v->count == 1) { return lval_take(v, 0); } // do something here
+
 
   /* Ensure First Element is a function after evaluation */
   lval* f = lval_pop(v, 0);
@@ -555,7 +562,6 @@ lval* lval_eval_sexpr(lenv* e, lval* v) {
     lval_del(f); lval_del(v);
     return err;
   }
-
   /* If so call function to get result */
   lval* result = f->fun(e, v);
   lval_del(f);
@@ -570,6 +576,7 @@ lval* lval_eval(lenv* e, lval* v) {
   }
   /* Evaluate Sexpressions */
   if (v->type == LVAL_SEXPR) { return lval_eval_sexpr(e, v); }
+  /* Functions */
   /* All other lval types remain the same */
   return v;
 }
@@ -607,31 +614,37 @@ lval* lval_read(mpc_ast_t* t) {
   
   return x;
 }
+#define _lval_number  "/-?[0-9]+/"
+#define _lval_symbol  "/[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/"
+#define _lval_sexpr   "'(' <expr>* ')'"
+#define _lval_qexpr   "'{' <expr>* '}'"
+#define _lval_expr    "<number> | <symbol> | <sexpr> | <qexpr>"
+#define _lval_lispy   "/^/ <expr>+ /$/"
 
 int main(int argc, char** argv) {
 
-  mpc_parser_t* Number = mpc_new("number");
-  mpc_parser_t* Symbol = mpc_new("symbol");
-  mpc_parser_t* Sexpr = mpc_new("sexpr");
-  mpc_parser_t* Qexpr = mpc_new("qexpr");
-  mpc_parser_t* Expr = mpc_new("expr");
-  mpc_parser_t* Lispy = mpc_new("lispy");
+  mpc_parser_t* Number  = mpc_new("number");
+  mpc_parser_t* Symbol  = mpc_new("symbol");
+  mpc_parser_t* Sexpr   = mpc_new("sexpr");
+  mpc_parser_t* Qexpr   = mpc_new("qexpr");
+  mpc_parser_t* Expr    = mpc_new("expr");
+  mpc_parser_t* Lispy   = mpc_new("lispy");
 
   mpca_lang(MPCA_LANG_DEFAULT,
-    "                                                     \
-      number  : /-?[0-9]+/ ;                              \
-      symbol  : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/ ;        \
-      sexpr   : '(' <expr>* ')' ;                         \
-      qexpr   : '{' <expr>* '}' ;                         \
-      expr    : <number> | <symbol> | <sexpr> | <qexpr> ; \
-      lispy   : /^/ <expr>+ /$/ ;                         \
+    "                               \
+      number  : " _lval_number  " ; \
+      symbol  : " _lval_symbol  " ; \
+      sexpr   : " _lval_sexpr   " ; \
+      qexpr   : " _lval_qexpr   " ; \
+      expr    : " _lval_expr    " ; \
+      lispy   : " _lval_lispy   " ; \
     ",
     Number, Symbol, Sexpr, Qexpr, Expr, Lispy);
 
   lenv* e = lenv_new();
   lenv_add_builtins(e);
 
-  puts("Lispy Version 0.0.0.0.6");
+  puts("Lispy Version 0.0.0.0.7");
   puts("Press Ctrl+c to Exit\n");
 
   while (1) {
