@@ -80,14 +80,21 @@ lval eval_op(lval x, char* op, lval y) {
   if (y.type == LVAL_ERR ) { return y; }
 
   /* Otherwise do maths on the number values */
-  if (strcmp(op, "+") == 0) { return lval_num(x.num + y.num); }
-  if (strcmp(op, "-") == 0) { return lval_num(x.num - y.num); }
-  if (strcmp(op, "*") == 0) { return lval_num(x.num * y.num); }
-  if (strcmp(op, "/") == 0) {
+  if ( strcmp(op, "+") == 0 || strcmp(op, "add") == 0 ) { return lval_num(x.num + y.num); }
+  if ( strcmp(op, "-") == 0 || strcmp(op, "sub") == 0 ) { return lval_num(x.num - y.num); }
+  if ( strcmp(op, "*") == 0 || strcmp(op, "mul") == 0 ) { return lval_num(x.num * y.num); }
+  //if ( strcmp(op, "^") == 0 || strcmp(op, "pow") == 0) { return pow(x.num, y.num); }
+  if (strcmp(op, "/") == 0 || strcmp(op, "div") == 0) {
     /* If second opperand is zero return error */
     return y.num == 0
       ? lval_err(LERR_DIV_ZERO)
       : lval_num(x.num / y.num);
+  }
+  if (strcmp(op, "%") == 0 || strcmp(op, "rem") == 0) {
+    /* If second opperand is zero return error */
+    return y.num == 0
+      ? lval_err(LERR_DIV_ZERO)
+      : lval_num(x.num % y.num);
   }
 
   return lval_err(LERR_BAD_OP);
@@ -123,8 +130,10 @@ int main(int argc, char** argv) {
 
   mpca_lang(MPCA_LANG_DEFAULT,
     "                                                     \
-      number   : /-?[0-9]+/ ;                             \
-      operator : '+' | '-' | '*' | '/' ;                  \
+      number   : /-?[0-9]+\\.?[0-9]*/ ;                   \
+      operator  : '+' | '-' | '*' | '/' | '%' | '^'       \
+                | \"add\" | \"sub\" | \"mul\" | \"div\"   \
+                | \"rem\" | \"pow\" ;                     \
       expr     : <number> | '(' <operator> <expr>+ ')' ;  \
       lispy    : /^/ <operator> <expr>+ /$/ ;             \
     ",
