@@ -418,7 +418,7 @@ lval* builtin_join(lenv* e, lval* a) {
 }
 
 lval* builtin_op(lenv* e, lval* a, char* op) {
-  
+
   /* Ensure all arguments are numbers */
   for (int i = 0; i < a->count; i++) {
     if (a->cell[i]->type != LVAL_NUM) {
@@ -450,6 +450,14 @@ lval* builtin_op(lenv* e, lval* a, char* op) {
       }
       x->num /= y->num;
     }
+    if (strcmp(op, "%") == 0) {
+      if (y->num == 0) {
+        lval_del(x); lval_del(y);
+        x = lval_err("Division By Zero.");
+        break;
+      }
+      x->num %= y->num;
+    }
 
     lval_del(y);
   }
@@ -472,6 +480,10 @@ lval* builtin_mul(lenv* e, lval* a) {
 
 lval* builtin_div(lenv* e, lval* a) {
   return builtin_op(e, a, "/");
+}
+
+lval* builtin_rem(lenv* e, lval* a) {
+  return builtin_op(e, a, "%");
 }
 
 lval* builtin_def(lenv* e, lval* a) {
@@ -529,6 +541,7 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "-", builtin_sub);
   lenv_add_builtin(e, "*", builtin_mul);
   lenv_add_builtin(e, "/", builtin_div);
+  lenv_add_builtin(e, "%", builtin_rem);
 
 }
 
@@ -615,7 +628,7 @@ lval* lval_read(mpc_ast_t* t) {
   return x;
 }
 #define _lval_number  "/-?[0-9]+/"
-#define _lval_symbol  "/[a-zA-Z0-9_+\\-*\\/\\\\=<>!&]+/"
+#define _lval_symbol  "/[a-zA-Z0-9_+\\-*%\\/\\\\=<>!&]+/"
 #define _lval_sexpr   "'(' <expr>* ')'"
 #define _lval_qexpr   "'{' <expr>* '}'"
 #define _lval_expr    "<number> | <symbol> | <sexpr> | <qexpr>"
