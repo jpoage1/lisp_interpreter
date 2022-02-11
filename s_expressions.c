@@ -277,7 +277,9 @@ int main(int argc, char** argv) {
   mpca_lang(MPCA_LANG_DEFAULT,
     "                                           \
       number  : /-?[0-9]+/ ;                    \
-      symbol  : '+' | '-' | '*' | '/' ;         \
+      symbol  : '+' | '-' | '*' | '/' | '%' | '^'                 \
+                | \"add\" | \"sub\" | \"mul\" | \"div\"             \
+                | \"rem\" | \"pow\" ;                               \
       sexpr   : '(' <expr>* ')' ;               \
       expr    : <number> | <symbol> | <sexpr> ; \
       lispy   : /^/ <expr>+ /$/ ;    \
