@@ -627,13 +627,6 @@ lval* lval_read(mpc_ast_t* t) {
   
   return x;
 }
-#define _lval_number  "/-?[0-9]+/"
-#define _lval_symbol  "/[a-zA-Z0-9_+\\-*%\\/\\\\=<>!&]+/"
-#define _lval_sexpr   "'(' <expr>* ')'"
-#define _lval_qexpr   "'{' <expr>* '}'"
-#define _lval_expr    "<number> | <symbol> | <sexpr> | <qexpr>"
-#define _lval_lispy   "/^/ <expr>+ /$/"
-
 int main(int argc, char** argv) {
 
   mpc_parser_t* Number  = mpc_new("number");
@@ -644,13 +637,13 @@ int main(int argc, char** argv) {
   mpc_parser_t* Lispy   = mpc_new("lispy");
 
   mpca_lang(MPCA_LANG_DEFAULT,
-    "                               \
-      number  : " _lval_number  " ; \
-      symbol  : " _lval_symbol  " ; \
-      sexpr   : " _lval_sexpr   " ; \
-      qexpr   : " _lval_qexpr   " ; \
-      expr    : " _lval_expr    " ; \
-      lispy   : " _lval_lispy   " ; \
+    "                                                     \
+      number  : /-?[0-9]+\\.?[0-9]*/ ;                    \
+      symbol  : /[a-zA-Z0-9_+\\-*%\\/\\\\=<>!&]+/ ;       \
+      sexpr   : '(' <expr>* ')' ;                         \
+      qexpr   : '{' <expr>* '}' ;                         \
+      expr    : <number> | <symbol> | <sexpr> | <qexpr> ; \
+      lispy   : /^/ <expr>+ /$/ ;                         \
     ",
     Number, Symbol, Sexpr, Qexpr, Expr, Lispy);
 
