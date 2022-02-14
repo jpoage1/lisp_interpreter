@@ -2,41 +2,41 @@
 This is a basic lisp interpreter written in C
 
 ## Install the compiler
-sudo apt-get install build-essential
+`sudo apt-get install build-essential`
 
 ## Install readline and add_history
-sudo apt-get install libedit-dev
+`sudo apt-get install libedit-dev`
 
 ## Install readline for debian and ubuntu
-sudo apt-get install libreadline-dev 
-sudo apt install libeditline-dev 
+`sudo apt-get install libreadline-dev` 
+`sudo apt install libeditline-dev`
 
 ## hello_world.c
 Prints 'Hello World' to the console
 
 ### Compile
-cc -std=c00 -Wall hello_world.c -o hello_world
+`cc -std=c00 -Wall hello_world.c -o hello_world`
 
 ## prompt.c
 A basic prompt that repeats the user input back to the console
 
 ### Compile
-cc -std=c99 -Wall prompt.c -ledit -o prompt
+`cc -std=c99 -Wall prompt.c -ledit -o prompt`
 
 ## parsing.c
 Added support for parsing the user input so later we can do stuff with it
 
 ### Compile on Linux and Mac
-cc -std=c99 -Wall parsing.c mpc.c -ledit -lm -o parsing
+`cc -std=c99 -Wall parsing.c mpc.c -ledit -lm -o parsing`
 
 ### Compile on Windows
-cc -std=c99 -Wall parsing.c mpc.c -o parsing
+`cc -std=c99 -Wall parsing.c mpc.c -o parsing`
 
 ## evaluation.c
 Evaluates the user input using basic math functions
 
 ### Compile
-cc -std=c99 -Wall evaluation.c mpc.c -ledit -lm -o evaluation
+`cc -std=c99 -Wall evaluation.c mpc.c -ledit -lm -o evaluation`
 
 ### Available Functions
 + - * / % ^ add sub div mul rem pow min max leaves branches
@@ -77,7 +77,7 @@ lispy> max 7 18 4 32
 Added some basic error handling. Dividing by zero no longer crashes the interpreter, instead the user receives an error. User is also notified if they use an invalid operator or invalid number.
 
 ### Compile
-cc -std=c99 -Wall error_handling.c mpc.c -ledit -lm -o error_handling
+`cc -std=c99 -Wall error_handling.c mpc.c -ledit -lm -o error_handling`
 
 ### Functions
 Same as evaluation.c
@@ -86,20 +86,26 @@ Same as evaluation.c
 Added support for S-Expressions. S-Expressions create support for nested operations
 
 ### Compile
-cc -std=c99 -Wall s_expressions.c mpc.c -ledit -lm -o s_expressions
+`cc -std=c99 -Wall s_expressions.c mpc.c -ledit -lm -o s_expressions`
 
 ### Functions
 Same as error_handling.c
 
+### Example of S-Expressions
+```
+lispy> (+ 1 1)
+2
+```
+
 ## q_expressions
-Added support for Q-Expressions, which are similar to lists
+Added support for Q-Expressions, which are similar to lists. Also added functions for manipulating lists: cons, len, init, list, head, tail, 
 
 ### Compile
-cc -std=c99 -Wall q_expressions.c mpc.c -ledit -lm -o q_expressions
+`cc -std=c99 -Wall q_expressions.c mpc.c -ledit -lm -o q_expressions`
 
 ### Functions
 Same as s_expressions.c
-Additionaly: cons, len, init, head, tail, join, list, eval
+Additionaly: cons, len, init, head, tail, join, list, eval, join
 
 #### cons
 takes a value and a Q-Expression and appends it to the front
@@ -165,6 +171,6 @@ Exiting...
 ```
 
 ### Compile
-cc -std=c99 -Wall variables.c mpc.c -ledit -lm -o variables
+`cc -std=c99 -Wall variables.c mpc.c -ledit -lm -o variables`
 
 
