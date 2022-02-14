@@ -42,6 +42,7 @@ cc -std=c99 -Wall evaluation.c mpc.c -ledit -lm -o evaluation
 + - * / % ^ add sub div mul rem pow min max leaves branches
 
 #### Examples
+```
 lispy> + 1 1
 2
 lispy> - 2 1
@@ -70,6 +71,7 @@ lispy> min 7 18 4 32
 4
 lispy> max 7 18 4 32
 32
+```
 
 ## error_handling.c
 Added some basic error handling. Dividing by zero no longer crashes the interpreter, instead the user receives an error. User is also notified if they use an invalid operator or invalid number.
@@ -101,52 +103,66 @@ Additionaly: cons, len, init, head, tail, join, list, eval
 
 #### cons
 takes a value and a Q-Expression and appends it to the front
+```
 lispy> cons 1 {2 3}
 {1 2 3}
+```
 
 #### len
 returns the number of elements in a Q-Expression
+```
 lispy> len {1 2 3}
 3
+```
 
 #### init
 returns all of a Q-Expression except the final element
+```
 lispy> init {1 2 3 4}
 {1 2 3}
+```
 
 #### list
+```
 lispy> list 1 2 3 4
 {1 2 3 4}
+```
 
 #### head
 Returns the first element of a list
+```
 lispy> head (list 1 2 3 4)
 {1}
+```
 
 #### tail
 Returns the last element of a list
+```
 lispy> tail {1 2 3 4}
 {4}
-
+```
 #### join
 Conjoins one or more Q-Expressions and returns a Q-Expression
 
 #### eval
 Evaluates the expression as if it were an S-Expression
+```
 lispy> eval (tail {tail tail {5 6 7}})
 {6 7}
+```
 
 ## variables.c
 Added support for creating variables using def. Also added an exit function to exit.
 
 ### Examples
+```
 lispy> def {x} 100
 ()
 lispy> x
 100
 lispy> exit
 Exiting...
-
+```
 
 ### Compile
 cc -std=c99 -Wall variables.c mpc.c -ledit -lm -o variables
