@@ -122,9 +122,22 @@ lval* lval_pop(lval* v, int i) {
   return x;
 }
 
+lval* lval_cons(lval* x, lval* y) {
+  if ( y->type == LVAL_QEXPR ) {
+    int i = 0;
+    while ( i < y->count ) {
+      x = lval_add(x, y->cell[i]);
+      i++;
+    }
+  } else {
+    x = lval_add(x, y);
+  }
+  return x;
+}
+
 lval* lval_join(lval* x, lval* y) {
 
-  /* For each cell in 'y' and it to 'x' */
+  /* For each cell in 'y' add it to 'x' */
   while (y->count) {
     x = lval_add(x, lval_pop(y, 0));
   }
@@ -181,6 +194,27 @@ lval* builtin_list(lval* a) {
   return a;
 }
 
+lval* builtin_cons(lval* a) {
+  
+  for (int i = 0; i < a->count; i++) {
+    LASSERT(a, a->cell[i]->type == LVAL_QEXPR || a->cell[i]->type == LVAL_NUM,
+        "Function 'join' passed incorrect type.");
+  }
+  lval *x = NULL;
+  if ( a->cell[0]->type == LVAL_NUM ) {
+    x = lval_qexpr();
+    x = lval_add(x, a->cell[0]);
+  } else {
+    x = a->cell[0];
+  }
+  int i = 1;
+  while ( i < a->count ) {
+    x = lval_cons(x, a->cell[i]);
+    i++;
+  }
+  free(a);
+  return x;
+}
 lval* builtin_head(lval* a) {
   /* Check Error Conditions */
   LASSERT(a, a->count == 1,
@@ -296,20 +330,30 @@ lval* builtin_op(lval* a, char* op) {
   lval_del(a);
   return x;
 }
-
+lval *builtin_len(lval *a) {
+  lval *x = lval_num(a->count);
+  free(a);
+  return x;
+};
+lval *builtin_init(lval *a) {
+  return a;
+};
 lval* builtin(lval* a, char* func) {
   if (strcmp("list", func) == 0) { return builtin_list(a); }
   if (strcmp("head", func) == 0) { return builtin_head(a); }
   if (strcmp("tail", func) == 0) { return builtin_tail(a); }
   if (strcmp("join", func) == 0) { return builtin_join(a); }
   if (strcmp("eval", func) == 0) { return builtin_eval(a); }
-  if (strcmp("add", func) == 0) { return builtin_eval(a); }
-  if (strcmp("sub", func) == 0) { return builtin_eval(a); }
-  if (strcmp("mul", func) == 0) { return builtin_eval(a); }
-  if (strcmp("div", func) == 0) { return builtin_eval(a); }
-  if (strcmp("rem", func) == 0) { return builtin_eval(a); }
-  if (strcmp("pow", func) == 0) { return builtin_eval(a); }
+  //if (strcmp("add", func) == 0) { return builtin_add(a); }
+  //if (strcmp("sub", func) == 0) { return builtin_sub(a); }
+  //if (strcmp("mul", func) == 0) { return builtin_mul(a); }
+  //if (strcmp("div", func) == 0) { return builtin_div(a); }
+  //if (strcmp("rem", func) == 0) { return builtin_rem(a); }
+  //if (strcmp("pow", func) == 0) { return builtin_pow(a); }
   if (strstr("+-/*", func)) { return builtin_op(a, func); }
+  if (strstr("cons", func)) { return builtin_cons(a); }
+  if (strstr("len", func)) { return builtin_len(a); }
+  if (strstr("init", func)) { return builtin_init(a); }
   lval_del(a);
   return lval_err("Unknown Function!");
 }
@@ -400,6 +444,7 @@ int main(int argc, char** argv) {
               | \"join\" | \"eval\"                           \
               | '+' | '-' | '*' | '/' | '^'                   \
               | \"add\" | \"sub\" | \"mul\" | \"div\"         \
+              | \"cons\" | \"len\" | \"init\"                 \
               | \"rem\" | \"pow\" ;                           \
       sexpr   : '(' <expr>* ')' ;                             \
       qexpr   : '{' <expr>* '}' ;                             \
