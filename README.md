@@ -17,11 +17,17 @@ Prints 'Hello World' to the console
 ### Compile
 `cc -std=c00 -Wall hello_world.c -o hello_world`
 
+#### Run
+`./hello_world`
+
 ## prompt.c
 A basic prompt that repeats the user input back to the console
 
 ### Compile
 `cc -std=c99 -Wall prompt.c -ledit -o prompt`
+
+#### Run
+`./prompt`
 
 ## parsing.c
 Added support for parsing the user input so later we can do stuff with it
@@ -32,6 +38,9 @@ Added support for parsing the user input so later we can do stuff with it
 ### Compile on Windows
 `cc -std=c99 -Wall parsing.c mpc.c -o parsing`
 
+#### Run
+`./parsing`
+
 #### FYI
 I developed this using Ubuntu Linux, so the following examples will now only be for compiling on Ubuntu or Debian. If you are using Windows, simply omit the `-ledit -lm` flag from the compiler options from this point and  on.
 
@@ -40,6 +49,9 @@ Evaluates the user input using basic math functions
 
 ### Compile
 `cc -std=c99 -Wall evaluation.c mpc.c -ledit -lm -o evaluation`
+
+#### Run
+`./evaluation`
 
 ### Available Functions
 * \+ 
@@ -97,6 +109,9 @@ Added some basic error handling. Dividing by zero no longer crashes the interpre
 ### Compile
 `cc -std=c99 -Wall error_handling.c mpc.c -ledit -lm -o error_handling`
 
+#### Run
+`./error_handling`
+
 ### Functions
 Same as evaluation.c
 
@@ -105,6 +120,9 @@ Added support for S-Expressions. S-Expressions create support for nested operati
 
 ### Compile
 `cc -std=c99 -Wall s_expressions.c mpc.c -ledit -lm -o s_expressions`
+
+#### Run
+`./s_expressions`
 
 ### Functions
 Same as error_handling.c
@@ -120,6 +138,9 @@ Added support for Q-Expressions, which are similar to lists. Also added function
 
 ### Compile
 `cc -std=c99 -Wall q_expressions.c mpc.c -ledit -lm -o q_expressions`
+
+#### Run
+`./q_expressions`
 
 ### Functions
 Same as s_expressions.c
@@ -189,6 +210,9 @@ Added support for creating variables using def. Also added an exit function to e
 
 ### Compile
 `cc -std=c99 -Wall variables.c mpc.c -ledit -lm -o variables`
+
+#### Run
+`./variables`
 
 ### Examples
 ```
