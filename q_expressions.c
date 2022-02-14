@@ -193,7 +193,6 @@ lval* builtin_list(lval* a) {
   a->type = LVAL_QEXPR;
   return a;
 }
-
 lval* builtin_cons(lval* a) {
   
   for (int i = 0; i < a->count; i++) {
@@ -331,12 +330,26 @@ lval* builtin_op(lval* a, char* op) {
   return x;
 }
 lval *builtin_len(lval *a) {
-  lval *x = lval_num(a->count);
+  LASSERT(a, a->count == 1,
+      "Function 'len' expected 1 args");
+  lval *x = NULL;
+  if ( a->cell[0]->type == LVAL_QEXPR ) {
+    x = lval_num(a->cell[0]->count);
+  }
   free(a);
   return x;
 };
 lval *builtin_init(lval *a) {
-  return a;
+  LASSERT(a, a->count == 1, "Function 'init' expected 1 arg");
+  LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'init' expected LVAL_QEXPR");
+  lval *x = lval_qexpr();
+  int i = 0;
+  while ( i < a->cell[0]->count-1 ) {
+    x = lval_add(x, a->cell[0]->cell[i]);
+    i++;
+  }
+  free(a);
+  return x;
 };
 lval* builtin(lval* a, char* func) {
   if (strcmp("list", func) == 0) { return builtin_list(a); }
