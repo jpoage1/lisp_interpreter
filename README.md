@@ -39,7 +39,22 @@ Evaluates the user input using basic math functions
 `cc -std=c99 -Wall evaluation.c mpc.c -ledit -lm -o evaluation`
 
 ### Available Functions
-+ - * / % ^ add sub div mul rem pow min max leaves branches
+* \+ 
+* \- 
+* \*
+* /
+* %
+* ^
+* add
+* sub
+* div
+* mul
+* rem
+* pow
+* min
+* max
+* leaves
+* branches
 
 #### Examples
 ```
@@ -98,14 +113,23 @@ lispy> (+ 1 1)
 ```
 
 ## q_expressions
-Added support for Q-Expressions, which are similar to lists. Also added functions for manipulating lists: cons, len, init, list, head, tail, 
+Added support for Q-Expressions, which are similar to lists. Also added functions for manipulating lists
 
 ### Compile
 `cc -std=c99 -Wall q_expressions.c mpc.c -ledit -lm -o q_expressions`
 
 ### Functions
 Same as s_expressions.c
-Additionaly: cons, len, init, head, tail, join, list, eval, join
+Additionaly:
+* cons
+* len
+* init
+* head
+* tail
+* join
+* list
+* eval
+* join
 
 #### cons
 takes a value and a Q-Expression and appends it to the front
