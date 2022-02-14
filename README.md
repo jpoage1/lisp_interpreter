@@ -115,7 +115,7 @@ lispy> (+ 1 1)
 2
 ```
 
-## q_expressions
+## q_expressions.c
 Added support for Q-Expressions, which are similar to lists. Also added functions for manipulating lists
 
 ### Compile
@@ -187,6 +187,9 @@ lispy> eval (tail {tail tail {5 6 7}})
 ## variables.c
 Added support for creating variables using def. Also added an exit function to exit.
 
+### Compile
+`cc -std=c99 -Wall variables.c mpc.c -ledit -lm -o variables`
+
 ### Examples
 ```
 lispy> def {x} 100
@@ -196,8 +199,3 @@ lispy> x
 lispy> exit
 Exiting...
 ```
-
-### Compile
-`cc -std=c99 -Wall variables.c mpc.c -ledit -lm -o variables`
-
-
