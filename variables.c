@@ -1,4 +1,5 @@
 #include "mpc.h"
+#include <math.h>
 
 #ifdef _WIN32
 
@@ -205,6 +206,28 @@ lval* lval_take(lval* v, int i) {
 }
 
 
+lval *lval_init(lval *a) {
+  lval *x = lval_qexpr();
+  int i = 0;
+  while ( i < a->cell[0]->count-1 ) {
+    x = lval_add(x, a->cell[0]->cell[i]);
+    i++;
+  }
+  free(a);
+  return x;
+}
+lval* lval_cons(lval* x, lval* y) {
+  if ( y->type == LVAL_QEXPR ) {
+    int i = 0;
+    while ( i < y->count ) {
+      x = lval_add(x, y->cell[i]);
+      i++;
+    }
+  } else {
+    x = lval_add(x, y);
+  }
+  return x;
+}
 void lval_print(lval* v);
 
 void lval_expr_print(lval* v, char open, char close) {
@@ -345,21 +368,52 @@ lval* builtin_exit(lenv* e, lval* a) {
   exit(0);
 }
 
+lval *builtin_len(lenv *e, lval *a) {
+  LASSERT_NUM("len", a, 1);
+  LASSERT_TYPE("len", a, 0, LVAL_QEXPR);
+  lval *x = NULL;
+  if ( a->cell[0]->type == LVAL_QEXPR ) {
+    x = lval_num(a->cell[0]->count);
+  }
+  free(a);
+  return x;
+};
+lval *builtin_init(lenv *e, lval *a) {
+  LASSERT_NUM("init", a, 1);
+  LASSERT_TYPE("init", a, 0, LVAL_QEXPR);
+  lval *x = lval_init(a);
+  return x;
+};
 lval* builtin_list(lenv* e, lval* a) {
   a->type = LVAL_QEXPR;
   return a;
 }
 
+lval* builtin_cons(lenv *e, lval* a) {
+  
+  for (int i = 0; i < a->count; i++) {
+    LASSERT(a, a->cell[i]->type == LVAL_QEXPR || a->cell[i]->type == LVAL_NUM,
+        "Function 'join' passed incorrect type.");
+  }
+  lval *x = NULL;
+  if ( a->cell[0]->type == LVAL_NUM ) {
+    x = lval_qexpr();
+    x = lval_add(x, a->cell[0]);
+  } else {
+    x = a->cell[0];
+  }
+  int i = 1;
+  while ( i < a->count ) {
+    x = lval_cons(x, a->cell[i]);
+    i++;
+  }
+  free(a);
+  return x;
+}
 lval* builtin_head(lenv* e, lval* a) {
   /* Check Error Conditions */
-  LASSERT(a, a->count == 1,
-      "Function 'head' passed too many arguments"
-      "Got %i, Expected %i.",
-      a->count, 1);
-  LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
-      "Function 'head' passed incorrect type for argument 0. "
-      "Got %s, Expected %s.",
-      ltype_name(a->cell[0]->type), ltype_name(LVAL_QEXPR));
+  LASSERT_NUM("head", a, 1);
+  LASSERT_TYPE("head", a, 0, LVAL_QEXPR);
   LASSERT(a, a->cell[0]->count != 0,
       "Function 'head' passed {}!");
 
@@ -373,10 +427,8 @@ lval* builtin_head(lenv* e, lval* a) {
 
 lval* builtin_tail(lenv* e, lval* a) {
   /* Check Error Conditions */
-  LASSERT(a, a->count == 1,
-      "Function 'tail' passed too many arguments!");
-  LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
-      "Function 'tail' passed incorrect types!");
+  LASSERT_NUM("tail", a, 1);
+  LASSERT_TYPE("tail", a, 0, LVAL_QEXPR);
   LASSERT(a, a->cell[0]->count != 0,
       "Function 'tail' passed {}!");
 
@@ -389,10 +441,8 @@ lval* builtin_tail(lenv* e, lval* a) {
 }
 
 lval* builtin_eval(lenv* e, lval* a) {
-  LASSERT(a, a->count == 1,
-      "Function 'eval' passed too many arguments!");
-  LASSERT(a, a->cell[0]->type == LVAL_QEXPR,
-      "Function 'eval' passed incorrect type!");
+  LASSERT_NUM("eval", a, 1);
+  LASSERT_TYPE("eval", a, 0, LVAL_QEXPR);
 
   lval* x = lval_take(a, 0);
   x->type = LVAL_SEXPR;
@@ -402,8 +452,7 @@ lval* builtin_eval(lenv* e, lval* a) {
 lval* builtin_join(lenv* e, lval* a) {
   
   for (int i = 0; i < a->count; i++) {
-    LASSERT(a, a->cell[i]->type == LVAL_QEXPR,
-        "Function 'join' passed incorrect type.");
+    LASSERT_TYPE("join", a, i, LVAL_QEXPR);
   }
 
   lval* x = lval_pop(a, 0);
@@ -540,6 +589,9 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "tail", builtin_tail);
   lenv_add_builtin(e, "eval", builtin_eval);
   lenv_add_builtin(e, "join", builtin_join);
+  lenv_add_builtin(e, "cons", builtin_cons);
+  lenv_add_builtin(e, "init", builtin_init);
+  lenv_add_builtin(e, "len", builtin_len);
 
   /* Mathematical Functions */
   lenv_add_builtin(e, "+", builtin_add);
