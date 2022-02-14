@@ -100,7 +100,7 @@ lval* lval_builtin(lbuiltin func) {
   v->builtin = func;
   return v;
 }
-lenv lenv_new(void);
+lenv* lenv_new(void);
 
 lval* lval_lambda(lval* formals, lval* body) {
   lval* v = malloc(sizeof(lval));
@@ -141,13 +141,10 @@ void lval_del(lval* v) {
 
   switch (v->type) {
     case LVAL_FUN: 
-      if (v->builtin) {
-        x->builtin = v->builtin;
-      } else {
-        x->builtin = NULL;
-        X->env = lenv_copy(v->env);
-        x->formals = lval_copy(v->formals);
-        x->body = lval_copy(v->body);
+      if (!v->builtin) {
+        lenv_del(v->env);
+        lval_del(v->formals);
+        lval_del(v->body);
       }
       break;
     case LVAL_NUM: break;
@@ -280,8 +277,8 @@ void lval_print(lval* v) {
     case LVAL_NUM:    printf("%lf", v->num); break; 
     case LVAL_ERR:    printf("Error: %s", v->err); break;
     case LVAL_SYM:    printf("%s", v->sym); break;
-    case LVAL_SEXPR:  lval_expr_print(v, '(', ')'); break;
-    case LVAL_QEXPR:  lval_expr_print(v, '{', '}'); break;
+    case LVAL_SEXPR:  lval_print_expr(v, '(', ')'); break;
+    case LVAL_QEXPR:  lval_print_expr(v, '{', '}'); break;
   }
 }
 
@@ -436,7 +433,7 @@ lval* builtin_lambda(lenv *e, lval *a) {
   /* Pop first two arguments and pass them to lval_lambda */
   lval *formals = lval_pop(a, 0);
   lval *body = lval_pop(a, 0);
-  val_del(a);
+  lval_del(a);
 
   return lval_lambda(formals, body);
 }
@@ -599,7 +596,7 @@ lval* builtin_var(lenv* e, lval* a, char* func) {
   for ( int i = 0; i < syms->count; i++) {
     /* If 'def' define in globally. If 'put' define in locally */
     if (strcmp(func, "def") == 0) {
-      lenv_def(e, syms->cell[i], a->cell[a+1]);
+      lenv_def(e, syms->cell[i], a->cell[i+1]);
     }
     if (strcmp(func, "=") == 0) {
       lenv_put(e, syms->cell[i], a->cell[i+1]);
@@ -624,7 +621,10 @@ void lenv_add_builtin(lenv* e, char* name, lbuiltin func) {
   lenv_put(e, k, v);
   lval_del(k); lval_del(v);
 }
-
+lval* builtin_exit(lenv* e, lval* a);
+lval* builtin_cons(lenv* e, lval* a); 
+lval* builtin_init(lenv* e, lval* a); 
+lval* builtin_len(lenv* e, lval* a); 
 void lenv_add_builtins(lenv* e) {
   /* Create a way to exit the program */
   lenv_add_builtin(e, "exit", builtin_exit);
