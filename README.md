@@ -33,7 +33,7 @@ Added support for parsing the user input so later we can do stuff with it
 `cc -std=c99 -Wall parsing.c mpc.c -o parsing`
 
 #### FYI
-I developed this using Ubuntu Linux, so if you are using windows, simply omit the `-ledit -lm` flag from the compiler options.
+I developed this using Ubuntu Linux, so the following examples will now only be for compiling on Ubuntu or Debian. If you are using Windows, simply omit the `-ledit -lm` flag from the compiler options from this point and  on.
 
 ## evaluation.c
 Evaluates the user input using basic math functions
