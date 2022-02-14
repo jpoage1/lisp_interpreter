@@ -14,7 +14,7 @@ sudo apt install libeditline-dev
 ## Compile hello_world.c
 cc -std=c00 -Wall hello_world.c -o hello_world
 
-## Compile pcc -std=c99 -Wall error_handling.c mpc.c -ledit -lm -o error_handlingrompt.c
+## Compile prompt.c
 cc -std=c99 -Wall prompt.c -ledit -o prompt
 
 ## Compile parsing.c on Linux and Mac
