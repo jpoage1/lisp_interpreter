@@ -152,7 +152,16 @@ lval* lval_take(lval* v, int i) {
   lval_del(v);
   return x;
 }
-
+lval *lval_init(lval *a) {
+  lval *x = lval_qexpr();
+  int i = 0;
+  while ( i < a->cell[0]->count-1 ) {
+    x = lval_add(x, a->cell[0]->cell[i]);
+    i++;
+  }
+  free(a);
+  return x;
+}
 void lval_print(lval* v);
 
 void lval_expr_print(lval* v, char open, char close) {
@@ -332,6 +341,7 @@ lval* builtin_op(lval* a, char* op) {
 lval *builtin_len(lval *a) {
   LASSERT(a, a->count == 1,
       "Function 'len' expected 1 args");
+  LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'len' expected LVAL_QEXPR");
   lval *x = NULL;
   if ( a->cell[0]->type == LVAL_QEXPR ) {
     x = lval_num(a->cell[0]->count);
@@ -342,13 +352,7 @@ lval *builtin_len(lval *a) {
 lval *builtin_init(lval *a) {
   LASSERT(a, a->count == 1, "Function 'init' expected 1 arg");
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'init' expected LVAL_QEXPR");
-  lval *x = lval_qexpr();
-  int i = 0;
-  while ( i < a->cell[0]->count-1 ) {
-    x = lval_add(x, a->cell[0]->cell[i]);
-    i++;
-  }
-  free(a);
+  lval *x = lval_init(a);
   return x;
 };
 lval* builtin(lval* a, char* func) {
