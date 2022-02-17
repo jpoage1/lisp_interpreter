@@ -629,6 +629,7 @@ lval* builtin_exit(lenv* e, lval* a);
 lval* builtin_cons(lenv* e, lval* a); 
 lval* builtin_init(lenv* e, lval* a); 
 lval* builtin_len(lenv* e, lval* a); 
+lval* builtin_front(lenv* e, lval* a); 
 void lenv_add_builtins(lenv* e) {
   /* Create a way to exit the program */
   lenv_add_builtin(e, "exit", builtin_exit);
@@ -647,6 +648,7 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "cons", builtin_cons);
   lenv_add_builtin(e, "init", builtin_init);
   lenv_add_builtin(e, "len", builtin_len);
+  lenv_add_builtin(e, "front", builtin_front);
 
   /* Mathematical Functions */
   lenv_add_builtin(e, "+", builtin_add);
@@ -865,13 +867,6 @@ lval* lval_cons(lval* x, lval* y) {
   return x;
 }
 
-
-
-
-
-
-
-
 lval* builtin_exit(lenv* e, lval* a) {
   printf("Exit was called!\n");
   exit(0);
@@ -898,7 +893,7 @@ lval* builtin_cons(lenv *e, lval* a) {
   
   for (int i = 0; i < a->count; i++) {
     LASSERT(a, a->cell[i]->type == LVAL_QEXPR || a->cell[i]->type == LVAL_NUM,
-        "Function 'join' passed incorrect type.");
+        "Function 'cons' passed incorrect type.");
   }
   lval *x = NULL;
   if ( a->cell[0]->type == LVAL_NUM ) {
@@ -916,6 +911,21 @@ lval* builtin_cons(lenv *e, lval* a) {
   return x;
 }
 
+lval *lval_front(lval *a) {
+  lval *x = malloc(sizeof(lval));
+  x = a->cell[0];
+  free(a);
+  return x;
+}
+
+lval* builtin_front(lenv *e, lval *a) {
+  LASSERT_NUM("front", a, 1);
+  LASSERT_TYPE("front", a, 0, LVAL_QEXPR);
+  LASSERT(a, a->cell[0]->count > 0,
+      "Function 'front' passed empty LVAL_QEXPR.");
+  lval *x = lval_front(a->cell[0]);
+  return x;
+}
 
 #define version "0.0.0.0.8"
 int main(int argc, char** argv) {
