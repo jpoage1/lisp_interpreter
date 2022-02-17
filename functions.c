@@ -183,16 +183,20 @@ lval* lval_copy(lval* v) {
         x->body = lval_copy(v->body);
       }
       break;
-    case LVAL_NUM: x->num = v->num; break;
+    case LVAL_NUM:
+      x->num = v->num;
+     break;
 
     /* copy strings using malloc and strcpy */
     case LVAL_ERR:
       x->err = malloc(strlen(v->err) + 1);
-      strcpy(x->err, v->err); break;
+      strcpy(x->err, v->err);
+     break;
 
     case LVAL_SYM:
       x->sym = malloc(strlen(v->sym) + 1);
-      strcpy(x->sym, v->sym); break;
+      strcpy(x->sym, v->sym);
+    break;
 
     /* copy lists by copying each sub-expression */
     case LVAL_SEXPR:
@@ -273,7 +277,7 @@ void lval_print(lval* v) {
        printf("(\\ "); lval_print(v->formals);
        putchar(' '); lval_print(v->body); putchar(')');
       }
-      break;
+    break;
     case LVAL_NUM:    printf("%lf", v->num); break; 
     case LVAL_ERR:    printf("Error: %s", v->err); break;
     case LVAL_SYM:    printf("%s", v->sym); break;
@@ -631,6 +635,8 @@ void lenv_add_builtins(lenv* e) {
 
   /* Variable Functions */
   lenv_add_builtin(e, "def", builtin_def);
+  lenv_add_builtin(e, "\\", builtin_lambda);
+  lenv_add_builtin(e, "=", builtin_put);
 
   /* List Functions */
   lenv_add_builtin(e, "list", builtin_list);
@@ -656,9 +662,6 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "^", builtin_pow);
   lenv_add_builtin(e, "pow", builtin_pow);
 
-  lenv_add_builtin(e, "\\", builtin_lambda);
-  lenv_add_builtin(e, "def", builtin_def);
-  lenv_add_builtin(e, "=", builtin_put);
 }
 
 /* Evaluation */
@@ -704,38 +707,41 @@ lval *lval_call(lenv *e, lval *f, lval *a) {
       break;
     }
 
-    /* If '&' remains in formal list bind to empty list */
-    if (f->formals->count > 0 &&
-        strcmp(f->formals->cell[0]->sym, "&") == 0) {
-      
-      /* Check to ensure that & is not passed invalidly */
-      if (f->formals->count != 2) {
-        return lval_err("Function format invalid. "
-            "Symbol '&' not followed by single symbol.");
-      }
-
-      /* Pop and delete '&' symbol */
-      lval_del(lval_pop(f->formals, 0));
-
-      /* Pop next symbol and creat emtpy list */
-      lval *sym = lval_pop(f->formals, 0);
-      lval* val = lval_qexpr();
-
-      /* Bind to environment and delete */
-      lenv_put(f->env, sym, val);
-      lval_del(sym); lval_del(val);
-    }
 
     /* Pop the next argument from the list */
-    lval *val = lval_pop(a, 0);
+    lval* val = lval_pop(a, 0);
 
     /* Bind a copy into the function's environment */
     lenv_put(f->env, sym, val);
 
     /* Delete symbol and value */
+    lval_del(sym); lval_del(val);
   }
 
+  /* Argument list is now bound so can be cleaned up */
   lval_del(a);
+
+  /* If '&' remains in formal list bind to empty list */
+  if (f->formals->count > 0 &&
+      strcmp(f->formals->cell[0]->sym, "&") == 0) {
+    
+    /* Check to ensure that & is not passed invalidly */
+    if (f->formals->count != 2) {
+      return lval_err("Function format invalid. "
+          "Symbol '&' not followed by single symbol.");
+    }
+
+    /* Pop and delete '&' symbol */
+    lval_del(lval_pop(f->formals, 0));
+
+    /* Pop next symbol and creat emtpy list */
+    lval *sym = lval_pop(f->formals, 0);
+    lval* val = lval_qexpr();
+
+    /* Bind to environment and delete */
+    lenv_put(f->env, sym, val);
+    lval_del(sym); lval_del(val);
+  }
 
   /* If all formals have been bound evaluate */
   if (f->formals->count == 0) {
@@ -768,7 +774,7 @@ lval* lval_eval_sexpr(lenv* e, lval* v) {
   /* Empty Expression */
   if (v->count == 0) { return v; }
   /* Single Expression */
-  if (v->count == 1) { return lval_take(v, 0); } // do something here
+  if (v->count == 1) { return lval_take(v, 0); }
 
 
   /* Ensure First Element is a function after evaluation */
@@ -911,7 +917,7 @@ lval* builtin_cons(lenv *e, lval* a) {
 }
 
 
-#define version "0.0.0.0.7"
+#define version "0.0.0.0.8"
 int main(int argc, char** argv) {
 
   mpc_parser_t* Number  = mpc_new("number");
