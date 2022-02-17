@@ -630,6 +630,7 @@ lval* builtin_cons(lenv* e, lval* a);
 lval* builtin_init(lenv* e, lval* a); 
 lval* builtin_len(lenv* e, lval* a); 
 lval* builtin_front(lenv* e, lval* a); 
+lval* builtin_nth(lenv* e, lval* a); 
 void lenv_add_builtins(lenv* e) {
   /* Create a way to exit the program */
   lenv_add_builtin(e, "exit", builtin_exit);
@@ -649,6 +650,7 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "init", builtin_init);
   lenv_add_builtin(e, "len", builtin_len);
   lenv_add_builtin(e, "front", builtin_front);
+  lenv_add_builtin(e, "nth", builtin_nth);
 
   /* Mathematical Functions */
   lenv_add_builtin(e, "+", builtin_add);
@@ -911,9 +913,9 @@ lval* builtin_cons(lenv *e, lval* a) {
   return x;
 }
 
-lval *lval_front(lval *a) {
-  lval *x = malloc(sizeof(lval));
-  x = a->cell[0];
+lval *lval_nth(lval *a, int n) {
+  lval *x = malloc(sizeof(lval*));
+  x = a->cell[n];
   free(a);
   return x;
 }
@@ -923,10 +925,23 @@ lval* builtin_front(lenv *e, lval *a) {
   LASSERT_TYPE("front", a, 0, LVAL_QEXPR);
   LASSERT(a, a->cell[0]->count > 0,
       "Function 'front' passed empty LVAL_QEXPR.");
-  lval *x = lval_front(a->cell[0]);
+  lval *x = lval_nth(a->cell[0], 0);
   return x;
 }
 
+lval* builtin_nth(lenv *e, lval *a) {
+  LASSERT_NUM("nth", a, 2);
+  LASSERT_TYPE("nth", a, 0, LVAL_NUM);
+  LASSERT_TYPE("nth", a, 1, LVAL_QEXPR);
+  LASSERT(a, a->cell[1]->count > 0,
+      "Function 'nth' passed empty LVAL_QEXPR.");
+  LASSERT(a, a->cell[1]->count > a->cell[0]->num,
+      "Function 'nth' arg 2 count '%d' is less than arg 1 '%d'",
+      a->cell[1]->count,
+      a->cell[0]->num);
+  lval *x = lval_nth(a->cell[1], a->cell[0]->num);
+  return x;
+}
 #define version "0.0.0.0.8"
 int main(int argc, char** argv) {
 
