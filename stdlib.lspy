@@ -4,18 +4,6 @@
 ;;;   Lispy Standard Prelude
 ;;;
 
-;;; Atoms
-(def {nil} {})
-(def {true} 1)
-(def {false} 0)
-
-;;; Functional Functions
-
-; Function Definitions
-(def {fun} (\ {f b} {
-  def (head f) (\ (tail f) b)
-}))
-
 ; Open new scope
 (fun {let b} {
   ((\ {_} b) ())
@@ -240,3 +228,4 @@
     { otherwise (+ (fib (- n 1)) (fib (- n 2))) }
 })
 
+(fun {cb} (myfun )
