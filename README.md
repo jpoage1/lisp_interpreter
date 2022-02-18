@@ -16,6 +16,7 @@ This is a basic lisp interpreter written in C
 `./lispy`
 
 ### Available Functions
+There is a lot to do. In the meantime, see tutorial/README.md
 #### Math
 TODO
 #### Lists
