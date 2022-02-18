@@ -337,12 +337,7 @@ lval *builtin_error(lenv *e, lval *a) {
   lval_del(a);
   return err;
 }
-void lenv_add_builtin(lenv* e, char* name, lbuiltin func) {
-  lval* k = lval_sym(name);
-  lval* v = lval_builtin(func);
-  lenv_put(e, k, v);
-  lval_del(k); lval_del(v);
-}
+
 lval* builtin_exit(lenv* e, lval* a);
 lval* builtin_cons(lenv* e, lval* a); 
 lval* builtin_init(lenv* e, lval* a); 
