@@ -21,6 +21,28 @@ lval* builtin_lambda(lenv *e, lval *a) {
   return lval_lambda(formals, body);
 }
 
+lval* builtin_fun(lenv *e, lval *a) {
+  /* Check Two arguments, each of which are Q-Expressions */
+  LASSERT_NUM("fun", a, 2);
+  LASSERT_TYPE("fun", a, 0, LVAL_QEXPR);
+  LASSERT_TYPE("fun", a, 1, LVAL_QEXPR);
+  lval *sym = lval_pop(a->cell[0], 0);
+  lval *formals = a->cell[0];
+  lval *body = a->cell[1];
+  lval *fun = lval_lambda(formals, body);
+  lenv_put(e, sym, fun);
+  return sym;
+}
+/*
+; Function Definitions
+(def {fun} (\ {f b} {
+  def (head f) (\ (tail f) b)
+}))
+; Open new scope
+(fun {let b} {
+  ((\ {_} b) ())
+})
+*/
 lval* builtin_list(lenv* e, lval* a) {
   a->type = LVAL_QEXPR;
   return a;

@@ -111,6 +111,7 @@ lval *builtin_cmp(lenv*, lval*, char*);
 lval *builtin_def(lenv*, lval*);
 lval *builtin_eq(lenv*, lval*);
 lval *builtin_error(lenv*, lval*);
+lval* builtin_fun(lenv*, lval*);
 lval *builtin_ge(lenv*, lval*);
 lval *builtin_gt(lenv*, lval*);
 lval *builtin_if(lenv*, lval*);

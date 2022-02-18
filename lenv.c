@@ -104,6 +104,8 @@ void lenv_add_builtins(lenv* e) {
   /* Create a way to exit the program */
   lenv_add_builtin(e, "exit", builtin_exit);
 
+  lenv_add_builtin(e, "fun", builtin_fun);
+
   /* Variable Functions */
   lenv_add_builtin(e, "def", builtin_def);
   lenv_add_builtin(e, "\\", builtin_lambda);
