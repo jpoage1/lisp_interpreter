@@ -338,12 +338,6 @@ lval *builtin_error(lenv *e, lval *a) {
   return err;
 }
 
-lval* builtin_exit(lenv* e, lval* a);
-lval* builtin_cons(lenv* e, lval* a); 
-lval* builtin_init(lenv* e, lval* a); 
-lval* builtin_len(lenv* e, lval* a); 
-lval* builtin_front(lenv* e, lval* a); 
-lval* builtin_nth(lenv* e, lval* a); 
 lval* builtin_exit(lenv* e, lval* a) {
   printf("Exit was called!\n");
   exit(0);
