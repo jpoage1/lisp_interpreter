@@ -151,3 +151,41 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "^", builtin_pow);
   lenv_add_builtin(e, "pow", builtin_pow);
 }
+
+
+lval *lenv_load(lenv *e, char *filename) {
+
+  /* Parse File given by string name */
+  mpc_result_t r;
+  if (mpc_parse_contents(filename, Lispy, &r)) {
+
+    /* Read contents */
+    lval *expr = lval_read(r.output);
+    mpc_ast_delete(r.output);
+
+    /* Evaluate each Expression */
+    while (expr->count) {
+      lval * x = lval_eval(e, lval_pop(expr, 0));
+      /* If Evaluation leads to error print it */
+      if (x->type == LVAL_ERR) { lval_println(x); }
+      lval_del(x);
+    }
+
+    /* Delete expressions and arguments */
+    lval_del(expr);
+
+    /* Return empty list */
+    return lval_sexpr();
+  } else {
+    /* Get Parse Error as String */
+    char *err_msg = mpc_err_string(r.error);
+    mpc_err_delete(r.error);
+
+    /* Create new error message using it */
+    lval *err = lval_err("Could not load Library %s", err_msg);
+    free(err_msg);
+
+    /* Cleanup and return error */
+    return err;
+  }
+}

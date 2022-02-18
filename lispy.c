@@ -40,6 +40,7 @@ int main(int argc, char** argv) {
 
   lenv* e = lenv_new();
   lenv_add_builtins(e);
+  lenv_load(e, "stdlib.lspy");
 
   puts("Lispy Version " version);
   puts("Press Ctrl+c to Exit\n");
