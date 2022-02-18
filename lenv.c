@@ -83,6 +83,10 @@ void lenv_def(lenv *e, lval *k, lval *v) {
   /* Put value in e */
   lenv_put(e, k, v);
 }
+void lenv_add_atom(lenv *e, char *name, lval *atom) {
+  lval *a = lval_sym(name);
+  lenv_def(e, a, atom);
+}
 
 void lenv_add_builtin(lenv* e, char* name, lbuiltin func) {
   lval* k = lval_sym(name);
@@ -90,7 +94,13 @@ void lenv_add_builtin(lenv* e, char* name, lbuiltin func) {
   lenv_put(e, k, v);
   lval_del(k); lval_del(v);
 }
+void lenv_add_atoms(lenv *e) {
+  lenv_add_atom(e, "nil", lval_qexpr());
+  lenv_add_atom(e, "true", lval_num(1));
+  lenv_add_atom(e, "false", lval_num(0));
+}
 void lenv_add_builtins(lenv* e) {
+  lenv_add_atoms(e);
   /* Create a way to exit the program */
   lenv_add_builtin(e, "exit", builtin_exit);
 
@@ -138,5 +148,4 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "rem", builtin_rem);
   lenv_add_builtin(e, "^", builtin_pow);
   lenv_add_builtin(e, "pow", builtin_pow);
-
 }

@@ -97,6 +97,8 @@ void lval_println(lval*);
 lenv *lenv_copy(lenv *);
 lenv *lenv_new(void);
 lval *lenv_get(lenv*, lval*);
+void lenv_add_atom(lenv *e, char *, lval *);
+void lenv_add_atoms(lenv *e);
 void lenv_add_builtin(lenv*, char*, lbuiltin);
 void lenv_add_builtins(lenv* e);
 void lenv_def(lenv *, lval *, lval *);
