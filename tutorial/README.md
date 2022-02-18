@@ -1,5 +1,7 @@
 # Lisp Interpreter
-This is a basic lisp interpreter written in C
+This is a basic lisp interpreter written in C.
+This itself is not a tutorial, however these are the steps I followed along with buildyourownlisp.com
+
 
 ## Install the compiler
 `sudo apt-get install build-essential`
@@ -223,3 +225,30 @@ lispy> x
 lispy> exit
 Exiting...
 ```
+
+## functions.c
+Added support for user defined functions.
+
+### Compile
+`cc -std=c99 -Wall functions.c mpc.c -ledit -lm -o functions`
+
+#### Run
+`./functions`
+
+## conditionals.c
+Added support for conditional statements.
+
+### Compile
+`cc -std=c99 -Wall conditionals.c mpc.c -ledit -lm -o conditionals`
+
+#### Run
+`./conditionals`
+
+## strings.c
+Added support for strings.
+
+### Compile
+`cc -std=c99 -Wall strings.c mpc.c -ledit -lm -o strings`
+
+#### Run
+`./strings`
