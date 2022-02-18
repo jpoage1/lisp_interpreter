@@ -203,7 +203,6 @@ lval* lval_take(lval* v, int i) {
   lval_del(v);
   return x;
 }
-void lval_print(lval *v);
 
 void lval_print_expr(lval* v, char open, char close) {
   putchar(open);
@@ -256,8 +255,6 @@ void lval_println(lval* v) { lval_print(v); putchar('\n'); }
 
 
 /* Lisp Environment */
-
-lval* lval_eval(lenv* e, lval* v);
 
 int lval_eq(lval *x, lval *y) {
 
